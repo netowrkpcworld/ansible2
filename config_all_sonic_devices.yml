@@ -1,0 +1,65 @@
+---
+
+- name: "Master PlayBook to Deploy SONiC Configs to all Spines and Leafs"
+  hosts: MAK-Ans-Leaf4
+  connection: httpapi
+  gather_facts: no
+  collections: dellemc.enterprise_sonic
+
+  tasks:
+    - name: 'Configure System'
+      sonic_system:
+        config: '{{ sonic_system }}'
+      when: sonic_system is defined and sonic_system
+
+    - name: "Create VLANs"
+      sonic_vlans:
+        config: '{{sonic_vlans}}'
+      when: sonic_vlans is defined and sonic_vlans
+
+    - name: "Create SONiC Lag Interfaces"
+      sonic_lag_interfaces:
+        config: '{{sonic_lag_interfaces}}'
+      when: sonic_lag_interfaces is defined and sonic_lag_interfaces
+
+    - name: Create Interfaces
+      sonic_interfaces:
+        config: "{{sonic_interfaces}}"
+      when: sonic_interfaces is defined and sonic_interfaces
+
+    - name: "Create L2 Interfaces"
+      sonic_l2_interfaces:
+        config: '{{sonic_l2_interfaces}}'
+      when: sonic_l2_interfaces is defined and sonic_l2_interfaces
+
+    - name: "Create L3 Interfaces"
+      sonic_l3_interfaces:
+        config: '{{ sonic_l3_interfaces }}'
+      when: sonic_l3_interfaces is defined and sonic_l3_interfaces
+
+    - name: "Create BGP Configurations"
+      sonic_bgp:
+        config: '{{sonic_bgp}}'
+      when: sonic_bgp is defined and sonic_bgp
+
+    - name: "Create BGP AF Configurations"
+      sonic_bgp_af:
+        config: '{{sonic_bgp_af}}'
+      when: sonic_bgp_af is defined and sonic_bgp_af
+
+    - name: "Create BGP Neighbor configurations"
+      sonic_bgp_neighbors:
+        config: '{{sonic_bgp_neighbors}}'
+      when: sonic_bgp_neighbors is defined and sonic_bgp_neighbors
+
+    - name: "Create BGP neighbors AF Configurations"
+      sonic_bgp_neighbors_af:
+        config: '{{sonic_bgp_neighbors_af}}'
+      when: sonic_bgp_neighbors_af is defined and sonic_bgp_neighbors_af
+
+    - name: "Push configs for custom CLIs"
+      vars:
+        ansible_connection: network_cli
+      sonic_config:
+        src: commands-cli.j2
+      register: result
